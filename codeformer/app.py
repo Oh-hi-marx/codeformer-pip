@@ -81,7 +81,7 @@ checkpoint = torch.load(ckpt_path)["params_ema"]
 codeformer_net.load_state_dict(checkpoint)
 codeformer_net.eval()
 
-os.makedirs("output", exist_ok=True)
+
 
 
 def inference_app(image, background_enhance, face_upsample, upscale, codeformer_fidelity, has_aligned, only_center_face):
