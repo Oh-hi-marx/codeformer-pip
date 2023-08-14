@@ -84,26 +84,21 @@ codeformer_net.eval()
 os.makedirs("output", exist_ok=True)
 
 
-def inference_app(image, background_enhance, face_upsample, upscale, codeformer_fidelity):
+def inference_app(image, background_enhance, face_upsample, upscale, codeformer_fidelity, has_aligned, only_center_face):
     # take the default setting for the demo
-    has_aligned = False
-    only_center_face = False
     draw_box = False
     detection_model = "retinaface_resnet50"
-    print("Inp:", image, background_enhance, face_upsample, upscale, codeformer_fidelity)
 
-    img = cv2.imread(str(image), cv2.IMREAD_COLOR)
-    print("\timage size:", img.shape)
+    if(isinstance(image, str)):
+        img = cv2.imread(str(image), cv2.IMREAD_COLOR)
+    else:
+        img = image
+
 
     upscale = int(upscale)  # convert type to int
-    if upscale > 4:  # avoid memory exceeded due to too large upscale
-        upscale = 4
-    if upscale > 2 and max(img.shape[:2]) > 1000:  # avoid memory exceeded due to too large img resolution
-        upscale = 2
-    if max(img.shape[:2]) > 1500:  # avoid memory exceeded due to too large img resolution
-        upscale = 1
-        background_enhance = False
-        face_upsample = False
+  
+
+
 
     face_helper = FaceRestoreHelper(
         upscale,
@@ -130,7 +125,7 @@ def inference_app(image, background_enhance, face_upsample, upscale, codeformer_
         num_det_faces = face_helper.get_face_landmarks_5(
             only_center_face=only_center_face, resize=640, eye_dist_threshold=5
         )
-        print(f"\tdetect {num_det_faces} faces")
+        
         # align and warp each face
         face_helper.align_warp_face()
 
@@ -172,8 +167,6 @@ def inference_app(image, background_enhance, face_upsample, upscale, codeformer_
             )
         else:
             restored_img = face_helper.paste_faces_to_input_image(upsample_img=bg_img, draw_box=draw_box)
-
-    # save restored img
-    save_path = f"output/out.png"
-    imwrite(restored_img, str(save_path))
-    return save_path
+        return restored_img
+    else:
+        return face_helper.restored_faces[0]
