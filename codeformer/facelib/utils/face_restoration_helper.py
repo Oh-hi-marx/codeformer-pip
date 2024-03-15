@@ -210,7 +210,7 @@ class FaceRestoreHelper(object):
         return len(self.all_landmarks_5)
 
     def get_face_landmarks_5(
-        self, only_keep_largest=False, only_center_face=False, resize=None, blur_ratio=0.01, eye_dist_threshold=None
+        self, only_keep_largest=False, only_center_face=False, resize=None, blur_ratio=0.01, eye_dist_threshold=None, min_size=None, max_size=None
     ):
         if self.det_model == "dlib":
             return self.get_face_landmarks_5_dlib(only_keep_largest)
@@ -244,8 +244,15 @@ class FaceRestoreHelper(object):
                 landmark = np.array([[bbox[i], bbox[i + 1]] for i in range(5, 11, 2)])
             else:
                 landmark = np.array([[bbox[i], bbox[i + 1]] for i in range(5, 15, 2)])
-            self.all_landmarks_5.append(landmark)
-            self.det_faces.append(bbox[0:5])
+            skip =0
+            if( min_size is not None):
+                if(bbox[2]-bbox[0]< min_size):
+                    skip =1
+            if(max_size is not None and bbox[3]-bbox[1]> max_size):
+                skip = 1
+            if(skip != 1):
+                self.all_landmarks_5.append(landmark)
+                self.det_faces.append(bbox[0:5])
 
         if len(self.det_faces) == 0:
             return 0

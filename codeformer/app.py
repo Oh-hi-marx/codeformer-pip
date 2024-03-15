@@ -84,7 +84,8 @@ codeformer_net.eval()
 
 
 
-def inference_app(image, background_enhance, face_upsample, upscale, codeformer_fidelity, has_aligned, only_center_face):
+def inference_app(image, background_enhance, face_upsample, upscale, codeformer_fidelity,
+                        has_aligned=None, only_center_face=None, min_size=None, max_size=None):
     # take the default setting for the demo
     draw_box = False
     detection_model = "retinaface_resnet50"
@@ -123,7 +124,7 @@ def inference_app(image, background_enhance, face_upsample, upscale, codeformer_
         face_helper.read_image(img)
         # get face landmarks for each face
         num_det_faces = face_helper.get_face_landmarks_5(
-            only_center_face=only_center_face, resize=640, eye_dist_threshold=5
+            only_center_face=only_center_face, resize=640, eye_dist_threshold=5, min_size=min_size, max_size=max_size
         )
         
         # align and warp each face
